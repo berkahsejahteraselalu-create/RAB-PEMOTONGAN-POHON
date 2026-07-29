@@ -56,7 +56,7 @@
                         <input type="checkbox" id="login-remember" checked>
                         <span>Ingat Saya</span>
                     </label>
-                    <a href="#" id="link-forgot-pwd" class="forgot-link" onclick="alert('5 Akun Terotorisasi System:\n1. admin / admin2026 (Admin Utama)\n2. surveyor1 / surveyor2026 (Surveyor 1)\n3. surveyor2 / surveyor2026 (Surveyor 2)\n4. arborist / arborist2026 (Arborist)\n5. estimator / estimator2026 (Estimator)'); return false;">Lupa Password?</a>
+                    <a href="#" id="link-forgot-pwd" class="forgot-link" onclick="alert('5 Akun Terotorisasi Sistem:\n1. admin / 12345Admin (Superadmin Utama)\n2. guest1 / 123guest1 (Guest Account 1)\n3. guest2 / 321guest2 (Guest Account 2)\n4. guest3 / 321guest3 (Guest Account 3)\n5. guest4 / 321guest4 (Guest Account 4)'); return false;">Lupa Password?</a>
                 </div>
 
                 <button type="submit" id="btn-login-submit" class="btn-primary login-btn">
@@ -69,8 +69,8 @@
                 <div class="demo-info">
                     <i class="fa-solid fa-shield-halved"></i>
                     <div>
-                        <strong>5 Akun Otorisasi</strong>
-                        <p>Admin: <code>admin</code> | Pass: <code>admin2026</code></p>
+                        <strong>Akun Superadmin & Guest</strong>
+                        <p>Superadmin: <code>admin</code> | Pass: <code>12345Admin</code></p>
                     </div>
                 </div>
                 <button type="button" id="btn-quick-demo" class="btn-demo-fill">
@@ -136,6 +136,28 @@
             
             <!-- 1. DASHBOARD VIEW -->
             <section id="dashboard-view" class="agent-view active">
+                
+                <!-- SUPERADMIN MONITORING HUB BAR -->
+                <div id="superadmin-bar" class="superadmin-bar" style="display: none;">
+                    <div class="superadmin-badge">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <div>
+                            <span>Superadmin Monitoring Hub</span>
+                            <small style="display:block; font-size:0.72rem; font-weight:400; opacity:0.85;">Akses Penuh Pemantauan Akun Guest 1 - 4</small>
+                        </div>
+                    </div>
+                    <div class="superadmin-filter">
+                        <label for="select-tenant-filter"><i class="fa-solid fa-eye"></i> Pantau Akun:</label>
+                        <select id="select-tenant-filter" class="form-control select-superadmin">
+                            <option value="all">🌐 Konsolidasi (Semua Akun Guest)</option>
+                            <option value="guest1">👤 guest1 (Guest User 1)</option>
+                            <option value="guest2">👤 guest2 (Guest User 2)</option>
+                            <option value="guest3">👤 guest3 (Guest User 3)</option>
+                            <option value="guest4">👤 guest4 (Guest User 4)</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="header-area">
                     <div class="page-title">
                         <h2>Dashboard Analytics Proyek</h2>

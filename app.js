@@ -1,27 +1,60 @@
-// app.js (Global script, no modules)
-
-// --- State Management & Auto-Save ---
+// --- State & Multi-Tenant Data Management ---
 let surveyData = [];
-let savedSurvey = null;
-try {
-    savedSurvey = localStorage.getItem('arborSurveyData');
-} catch (e) {
-    console.warn("LocalStorage not available:", e);
-}
+let currentUser = null;
+let activeTenantKey = 'guest1';
 
-if (savedSurvey) {
+function loadTenantData(tenantUsername) {
+    activeTenantKey = tenantUsername;
     try {
-        surveyData = JSON.parse(savedSurvey);
-    } catch (e) {
-        console.error(e);
+        const raw = localStorage.getItem('arborSurveyData_' + tenantUsername);
+        if (raw) {
+            surveyData = JSON.parse(raw);
+        } else {
+            // Initial sample data for guest1, fresh empty space for guest2..guest4
+            if (tenantUsername === 'guest1') {
+                surveyData = JSON.parse(JSON.stringify(SAMPLE_SURVEY_DATA));
+            } else {
+                surveyData = [];
+            }
+            saveToLocal();
+        }
+    } catch(e) {
+        console.warn("Error loading tenant data:", e);
+        surveyData = [];
     }
 }
 
+function loadConsolidatedSuperadminData() {
+    activeTenantKey = 'all';
+    surveyData = [];
+    ['guest1', 'guest2', 'guest3', 'guest4'].forEach(g => {
+        try {
+            const raw = localStorage.getItem('arborSurveyData_' + g);
+            if (raw) {
+                const items = JSON.parse(raw);
+                items.forEach(item => {
+                    surveyData.push({
+                        ...item,
+                        id: `[${g.toUpperCase()}] ${item.id}`
+                    });
+                });
+            }
+        } catch(e) {
+            console.warn(e);
+        }
+    });
+}
+
 function saveToLocal() {
+    if (!currentUser) return;
     try {
-        localStorage.setItem('arborSurveyData', JSON.stringify(surveyData));
+        if (currentUser.isSuperadmin && activeTenantKey !== 'all') {
+            localStorage.setItem('arborSurveyData_' + activeTenantKey, JSON.stringify(surveyData));
+        } else if (!currentUser.isSuperadmin) {
+            localStorage.setItem('arborSurveyData_' + currentUser.username, JSON.stringify(surveyData));
+        }
     } catch(e) {
-        console.warn("LocalStorage not available:", e);
+        console.warn("LocalStorage error:", e);
     }
 }
 
@@ -703,12 +736,16 @@ if (btnExportExcel) {
 // AUTHENTICATION & STRICT ACCESS CONTROL (MAKSIMAL 5 AKUN TEROTORISASI)
 // ==========================================================================
 
+// ==========================================================================
+// AUTHENTICATION & STRICT ACCESS CONTROL (5 AKUN KHUSUS TEROTORISASI)
+// ==========================================================================
+
 const ALLOWED_USERS = [
-    { username: 'admin', pass: 'admin2026', name: 'Administrator Utama', role: 'Chief Arborist & System Admin' },
-    { username: 'surveyor1', pass: 'surveyor2026', name: 'Budi Santoso', role: 'Surveyor Lapangan Utama' },
-    { username: 'surveyor2', pass: 'surveyor2026', name: 'Ahmad Hidayat', role: 'Surveyor Lapangan Pembantu' },
-    { username: 'arborist', pass: 'arborist2026', name: 'Dr. Hendra Wijaya', role: 'Spesialis Pertamanan & Pohon' },
-    { username: 'estimator', pass: 'estimator2026', name: 'Rina Kartika, ST', role: 'Analis Biaya & AHSP 2026' }
+    { username: 'admin', pass: '12345Admin', name: 'Superadmin Utama', role: 'Superadmin (Akses Penuh Monitoring)', isSuperadmin: true },
+    { username: 'guest1', pass: '123guest1', name: 'Guest Account 1', role: 'Pengguna Terbatas 1', isSuperadmin: false },
+    { username: 'guest2', pass: '321guest2', name: 'Guest Account 2', role: 'Pengguna Terbatas 2', isSuperadmin: false },
+    { username: 'guest3', pass: '321guest3', name: 'Guest Account 3', role: 'Pengguna Terbatas 3', isSuperadmin: false },
+    { username: 'guest4', pass: '321guest4', name: 'Guest Account 4', role: 'Pengguna Terbatas 4', isSuperadmin: false }
 ];
 
 const loginOverlay = document.getElementById('login-overlay');
@@ -736,9 +773,9 @@ function checkAuthSession() {
         try {
             const user = JSON.parse(session);
             // Verify if stored user still exists in ALLOWED_USERS
-            const isValidUser = ALLOWED_USERS.some(u => u.username.toLowerCase() === (user.username || '').toLowerCase());
-            if (isValidUser) {
-                activateUserSession(user);
+            const foundUser = ALLOWED_USERS.find(u => u.username.toLowerCase() === (user.username || '').toLowerCase());
+            if (foundUser) {
+                activateUserSession(foundUser);
             } else {
                 showLoginScreen();
             }
@@ -751,16 +788,52 @@ function checkAuthSession() {
 }
 
 function showLoginScreen() {
+    currentUser = null;
     if (loginOverlay) loginOverlay.classList.remove('hidden');
     if (appContainer) appContainer.style.filter = 'blur(8px)';
 }
 
 function activateUserSession(user) {
+    currentUser = user;
     if (loginOverlay) loginOverlay.classList.add('hidden');
     if (appContainer) appContainer.style.filter = 'none';
 
     if (userDisplayName) userDisplayName.textContent = user.name || user.username || 'User';
     if (userDisplayRole) userDisplayRole.textContent = user.role || 'Arbor-AI Agent';
+
+    const superadminBar = document.getElementById('superadmin-bar');
+    const selectTenantFilter = document.getElementById('select-tenant-filter');
+
+    if (user.isSuperadmin) {
+        if (superadminBar) superadminBar.style.display = 'flex';
+        if (selectTenantFilter) selectTenantFilter.value = 'all';
+        loadConsolidatedSuperadminData();
+    } else {
+        if (superadminBar) superadminBar.style.display = 'none';
+        loadTenantData(user.username);
+    }
+
+    renderSurveyTable();
+    renderArboristTable();
+    if (typeof generateRAB === 'function') generateRAB();
+    renderDashboard();
+}
+
+// Superadmin Monitoring Filter Change Listener
+const selectTenantFilter = document.getElementById('select-tenant-filter');
+if (selectTenantFilter) {
+    selectTenantFilter.addEventListener('change', function(e) {
+        const val = e.target.value;
+        if (val === 'all') {
+            loadConsolidatedSuperadminData();
+        } else {
+            loadTenantData(val);
+        }
+        renderSurveyTable();
+        renderArboristTable();
+        if (typeof generateRAB === 'function') generateRAB();
+        renderDashboard();
+    });
 }
 
 // Form Submit Handler (STRICT VERIFICATION)
@@ -803,7 +876,7 @@ if (formLogin) {
             // REJECT INVALID CREDENTIALS
             if (loginAlert) {
                 loginAlert.style.display = 'flex';
-                loginAlertMsg.textContent = 'Akses Ditolak! Username atau Password tidak terdaftar dalam 5 akun otorisasi.';
+                loginAlertMsg.textContent = 'Akses Ditolak! Username atau Password tidak terdaftar.';
             }
             if (pwdInput) pwdInput.value = '';
         }
@@ -825,12 +898,12 @@ if (btnTogglePwd && pwdInput && pwdIcon) {
     });
 }
 
-// Auto Fill & Quick Demo Login Button
+// Auto Fill & Quick Demo Login Button (Fills admin / 12345Admin)
 if (btnQuickDemo) {
     btnQuickDemo.addEventListener('click', function() {
         const usernameInput = document.getElementById('login-username');
         if (usernameInput) usernameInput.value = 'admin';
-        if (pwdInput) pwdInput.value = 'admin2026';
+        if (pwdInput) pwdInput.value = '12345Admin';
         
         if (formLogin) {
             const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
@@ -857,5 +930,6 @@ if (btnLogout) {
 // Initialize Authentication Check on Page Load
 document.addEventListener('DOMContentLoaded', checkAuthSession);
 checkAuthSession();
+
 
 
