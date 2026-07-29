@@ -973,7 +973,7 @@ if (mobileBackdrop) {
 // Close drawer automatically on mobile when selecting a nav item
 document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', () => {
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 992) {
             toggleMobileSidebar(false);
         }
     });

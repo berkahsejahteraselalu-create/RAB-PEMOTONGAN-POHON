@@ -1235,8 +1235,8 @@ select.form-control {
     pointer-events: auto;
 }
 
-/* Tablet & Mobile Breakpoint (<= 768px) */
-@media (max-width: 768px) {
+/* Tablet & Mobile Breakpoint (<= 992px) */
+@media (max-width: 992px) {
     .mobile-header {
         display: flex;
     }
