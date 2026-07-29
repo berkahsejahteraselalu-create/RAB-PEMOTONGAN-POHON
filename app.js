@@ -699,3 +699,159 @@ if (btnExportExcel) {
     });
 }
 
+// ==========================================================================
+// AUTHENTICATION & LOGIN SESSION MANAGEMENT
+// ==========================================================================
+
+const DEFAULT_USERS = [
+    { username: 'admin', pass: 'admin', name: 'Administrator Proyek', role: 'Chief Arborist' },
+    { username: 'surveyor', pass: 'surveyor123', name: 'Tim Surveyor Lapangan', role: 'Surveyor Field Agent' },
+    { username: 'estimator', pass: 'estimator123', name: 'Tim Estimator AHSP', role: 'Cost Estimator Specialist' }
+];
+
+const loginOverlay = document.getElementById('login-overlay');
+const appContainer = document.getElementById('app-container');
+const formLogin = document.getElementById('form-login');
+const loginAlert = document.getElementById('login-alert');
+const loginAlertMsg = document.getElementById('login-alert-msg');
+const btnTogglePwd = document.getElementById('btn-toggle-pwd');
+const pwdInput = document.getElementById('login-password');
+const pwdIcon = document.getElementById('pwd-icon');
+const btnQuickDemo = document.getElementById('btn-quick-demo');
+const btnLogout = document.getElementById('btn-logout');
+const userDisplayName = document.getElementById('user-display-name');
+const userDisplayRole = document.getElementById('user-display-role');
+
+function checkAuthSession() {
+    let session = null;
+    try {
+        session = localStorage.getItem('arborUserSession') || sessionStorage.getItem('arborUserSession');
+    } catch(e) {
+        console.warn("Storage access restricted:", e);
+    }
+
+    if (session) {
+        try {
+            const user = JSON.parse(session);
+            activateUserSession(user);
+        } catch(e) {
+            showLoginScreen();
+        }
+    } else {
+        showLoginScreen();
+    }
+}
+
+function showLoginScreen() {
+    if (loginOverlay) loginOverlay.classList.remove('hidden');
+    if (appContainer) appContainer.style.filter = 'blur(8px)';
+}
+
+function activateUserSession(user) {
+    if (loginOverlay) loginOverlay.classList.add('hidden');
+    if (appContainer) appContainer.style.filter = 'none';
+
+    if (userDisplayName) userDisplayName.textContent = user.name || user.username || 'User';
+    if (userDisplayRole) userDisplayRole.textContent = user.role || 'Arbor-AI Agent';
+}
+
+// Form Submit Handler
+if (formLogin) {
+    formLogin.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('login-username').value.trim();
+        const password = pwdInput.value.trim();
+        const remember = document.getElementById('login-remember').checked;
+        const btnSubmit = document.getElementById('btn-login-submit');
+
+        // Check against default users or allow flexible login for non-empty fields
+        const foundUser = DEFAULT_USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.pass === password);
+
+        if (foundUser || (username.length >= 3 && password.length >= 3)) {
+            const userSession = foundUser || {
+                username: username,
+                name: username.charAt(0).toUpperCase() + username.slice(1),
+                role: 'Arbor-AI Agent'
+            };
+
+            // Loading state feedback
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<span>Memproses...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
+            if (loginAlert) loginAlert.style.display = 'none';
+
+            setTimeout(() => {
+                try {
+                    const sessionData = JSON.stringify(userSession);
+                    if (remember) {
+                        localStorage.setItem('arborUserSession', sessionData);
+                    } else {
+                        sessionStorage.setItem('arborUserSession', sessionData);
+                    }
+                } catch(e) {
+                    console.warn("Could not save session:", e);
+                }
+
+                activateUserSession(userSession);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<span>Masuk ke Dashboard</span> <i class="fa-solid fa-right-to-bracket"></i>`;
+            }, 400);
+
+        } else {
+            if (loginAlert) {
+                loginAlert.style.display = 'flex';
+                loginAlertMsg.textContent = 'Username atau Password salah! (Coba demo: admin / admin)';
+            }
+        }
+    });
+}
+
+// Password Visibility Toggle
+if (btnTogglePwd && pwdInput && pwdIcon) {
+    btnTogglePwd.addEventListener('click', function() {
+        if (pwdInput.type === 'password') {
+            pwdInput.type = 'text';
+            pwdIcon.classList.remove('fa-eye');
+            pwdIcon.classList.add('fa-eye-slash');
+        } else {
+            pwdInput.type = 'password';
+            pwdIcon.classList.remove('fa-eye-slash');
+            pwdIcon.classList.add('fa-eye');
+        }
+    });
+}
+
+// Auto Fill & Quick Demo Login Button
+if (btnQuickDemo) {
+    btnQuickDemo.addEventListener('click', function() {
+        const usernameInput = document.getElementById('login-username');
+        if (usernameInput) usernameInput.value = 'admin';
+        if (pwdInput) pwdInput.value = 'admin';
+        
+        if (formLogin) {
+            const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
+            formLogin.dispatchEvent(submitEvent);
+        }
+    });
+}
+
+// Logout Handler
+if (btnLogout) {
+    btnLogout.addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+            try {
+                localStorage.removeItem('arborUserSession');
+                sessionStorage.removeItem('arborUserSession');
+            } catch(e) {
+                console.warn(e);
+            }
+            showLoginScreen();
+        }
+    });
+}
+
+// Initialize Authentication Check on Page Load
+document.addEventListener('DOMContentLoaded', checkAuthSession);
+checkAuthSession();
+
+

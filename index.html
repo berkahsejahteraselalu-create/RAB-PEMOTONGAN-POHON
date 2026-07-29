@@ -12,7 +12,79 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <!-- LOGIN SCREEN OVERLAY -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-glow-1"></div>
+        <div class="login-glow-2"></div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-brand-icon">
+                    <i class="fa-solid fa-tree"></i>
+                </div>
+                <h2>Arbor-AI</h2>
+                <p>Orchestration Hub &middot; RAB & AHSP 2026</p>
+            </div>
+
+            <div id="login-alert" class="login-alert" style="display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="login-alert-msg">Username atau Password salah!</span>
+            </div>
+
+            <form id="form-login" class="login-form">
+                <div class="form-group">
+                    <label class="form-label" for="login-username">Username / Email</label>
+                    <div class="input-icon-group">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input type="text" id="login-username" class="form-control with-icon" placeholder="Masukkan username" required autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <div class="input-icon-group">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" id="login-password" class="form-control with-icon" placeholder="Masukkan password" required autocomplete="current-password">
+                        <button type="button" id="btn-toggle-pwd" class="btn-pwd-toggle" title="Tampilkan/Sembunyikan Password">
+                            <i class="fa-solid fa-eye" id="pwd-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="login-remember" checked>
+                        <span>Ingat Saya</span>
+                    </label>
+                    <a href="#" id="link-forgot-pwd" class="forgot-link" onclick="alert('Akun Demo Default:\nUsername: admin\nPassword: admin'); return false;">Lupa Password?</a>
+                </div>
+
+                <button type="submit" id="btn-login-submit" class="btn-primary login-btn">
+                    <span>Masuk ke Dashboard</span>
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </button>
+            </form>
+
+            <div class="demo-login-box">
+                <div class="demo-info">
+                    <i class="fa-solid fa-key"></i>
+                    <div>
+                        <strong>Demo Quick Login</strong>
+                        <p>User: <code>admin</code> | Pass: <code>admin</code></p>
+                    </div>
+                </div>
+                <button type="button" id="btn-quick-demo" class="btn-demo-fill">
+                    <i class="fa-solid fa-bolt"></i> Auto Login
+                </button>
+            </div>
+
+            <div class="login-footer">
+                <p>&copy; 2026 Arbor-AI Hub &middot; Manajemen Pemotongan Pohon</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-container">
         <!-- SIDEBAR -->
         <aside class="sidebar">
             <a href="#" class="brand">
@@ -43,6 +115,20 @@
                     <span>Estimator Agent</span>
                 </div>
             </nav>
+
+            <!-- User Profile & Logout -->
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <h4 id="user-display-name">Administrator</h4>
+                    <span id="user-display-role">Chief Arborist</span>
+                </div>
+                <button id="btn-logout" class="btn-logout" title="Keluar / Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
         </aside>
 
         <!-- MAIN CONTENT -->
