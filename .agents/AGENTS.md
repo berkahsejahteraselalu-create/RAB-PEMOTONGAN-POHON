@@ -16,3 +16,13 @@ Whenever designing, modifying, reviewing, or styling HTML/CSS/JS interfaces in t
 
 3. **UI Review Format**:
    - When reviewing or proposing UI/CSS changes, present recommendations using markdown tables with `| Before | After | Why |` columns.
+
+## Multi-Tenant Access Control & Workspaces
+
+1. **Strict 5-Account Isolation**:
+   - Access is restricted exclusively to 5 authorized accounts (`admin`, `guest1`, `guest2`, `guest3`, `guest4`).
+   - Every guest account (`guest1`–`guest4`) MUST operate on an isolated storage namespace (`arborSurveyData_guest1`, `arborSurveyData_guest2`, etc.) to prevent data leakage between tenants.
+
+2. **Superadmin Consolidated Oversight**:
+   - The `admin` account is granted `isSuperadmin: true` access with a dedicated Monitoring Hub filter.
+   - Superadmin can toggle between consolidated multi-tenant views (`all`) and individual guest accounts (`guest1`–`guest4`) dynamically.
