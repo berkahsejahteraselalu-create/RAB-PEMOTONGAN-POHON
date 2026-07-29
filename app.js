@@ -700,13 +700,15 @@ if (btnExportExcel) {
 }
 
 // ==========================================================================
-// AUTHENTICATION & LOGIN SESSION MANAGEMENT
+// AUTHENTICATION & STRICT ACCESS CONTROL (MAKSIMAL 5 AKUN TEROTORISASI)
 // ==========================================================================
 
-const DEFAULT_USERS = [
-    { username: 'admin', pass: 'admin', name: 'Administrator Proyek', role: 'Chief Arborist' },
-    { username: 'surveyor', pass: 'surveyor123', name: 'Tim Surveyor Lapangan', role: 'Surveyor Field Agent' },
-    { username: 'estimator', pass: 'estimator123', name: 'Tim Estimator AHSP', role: 'Cost Estimator Specialist' }
+const ALLOWED_USERS = [
+    { username: 'admin', pass: 'admin2026', name: 'Administrator Utama', role: 'Chief Arborist & System Admin' },
+    { username: 'surveyor1', pass: 'surveyor2026', name: 'Budi Santoso', role: 'Surveyor Lapangan Utama' },
+    { username: 'surveyor2', pass: 'surveyor2026', name: 'Ahmad Hidayat', role: 'Surveyor Lapangan Pembantu' },
+    { username: 'arborist', pass: 'arborist2026', name: 'Dr. Hendra Wijaya', role: 'Spesialis Pertamanan & Pohon' },
+    { username: 'estimator', pass: 'estimator2026', name: 'Rina Kartika, ST', role: 'Analis Biaya & AHSP 2026' }
 ];
 
 const loginOverlay = document.getElementById('login-overlay');
@@ -733,7 +735,13 @@ function checkAuthSession() {
     if (session) {
         try {
             const user = JSON.parse(session);
-            activateUserSession(user);
+            // Verify if stored user still exists in ALLOWED_USERS
+            const isValidUser = ALLOWED_USERS.some(u => u.username.toLowerCase() === (user.username || '').toLowerCase());
+            if (isValidUser) {
+                activateUserSession(user);
+            } else {
+                showLoginScreen();
+            }
         } catch(e) {
             showLoginScreen();
         }
@@ -755,7 +763,7 @@ function activateUserSession(user) {
     if (userDisplayRole) userDisplayRole.textContent = user.role || 'Arbor-AI Agent';
 }
 
-// Form Submit Handler
+// Form Submit Handler (STRICT VERIFICATION)
 if (formLogin) {
     formLogin.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -765,24 +773,18 @@ if (formLogin) {
         const remember = document.getElementById('login-remember').checked;
         const btnSubmit = document.getElementById('btn-login-submit');
 
-        // Check against default users or allow flexible login for non-empty fields
-        const foundUser = DEFAULT_USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.pass === password);
+        // STRICT MATCH against ALLOWED_USERS only
+        const foundUser = ALLOWED_USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.pass === password);
 
-        if (foundUser || (username.length >= 3 && password.length >= 3)) {
-            const userSession = foundUser || {
-                username: username,
-                name: username.charAt(0).toUpperCase() + username.slice(1),
-                role: 'Arbor-AI Agent'
-            };
-
+        if (foundUser) {
             // Loading state feedback
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<span>Memproses...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
+            btnSubmit.innerHTML = `<span>Memverifikasi Akun...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
             if (loginAlert) loginAlert.style.display = 'none';
 
             setTimeout(() => {
                 try {
-                    const sessionData = JSON.stringify(userSession);
+                    const sessionData = JSON.stringify(foundUser);
                     if (remember) {
                         localStorage.setItem('arborUserSession', sessionData);
                     } else {
@@ -792,16 +794,18 @@ if (formLogin) {
                     console.warn("Could not save session:", e);
                 }
 
-                activateUserSession(userSession);
+                activateUserSession(foundUser);
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `<span>Masuk ke Dashboard</span> <i class="fa-solid fa-right-to-bracket"></i>`;
-            }, 400);
+            }, 350);
 
         } else {
+            // REJECT INVALID CREDENTIALS
             if (loginAlert) {
                 loginAlert.style.display = 'flex';
-                loginAlertMsg.textContent = 'Username atau Password salah! (Coba demo: admin / admin)';
+                loginAlertMsg.textContent = 'Akses Ditolak! Username atau Password tidak terdaftar dalam 5 akun otorisasi.';
             }
+            if (pwdInput) pwdInput.value = '';
         }
     });
 }
@@ -826,7 +830,7 @@ if (btnQuickDemo) {
     btnQuickDemo.addEventListener('click', function() {
         const usernameInput = document.getElementById('login-username');
         if (usernameInput) usernameInput.value = 'admin';
-        if (pwdInput) pwdInput.value = 'admin';
+        if (pwdInput) pwdInput.value = 'admin2026';
         
         if (formLogin) {
             const submitEvent = new Event('submit', { cancelable: true, bubbles: true });
