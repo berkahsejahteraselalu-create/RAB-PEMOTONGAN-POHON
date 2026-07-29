@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAB Pemotongan & Perampingan Pohon – AHSP 2026 PUPR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:   #1a4d2e;
+      --primary-light: #2d7a4f;
+      --accent:    #f5a623;
+      --accent-dark: #c07e0b;
+      --bg:        #f4f6f4;
+      --surface:   #ffffff;
+      --border:    #d0ddd2;
+      --text:      #1e2b1f;
+      --text-muted:#4a5e4c;
+      --header-bg: #1a4d2e;
+      --header-text:#ffffff;
+      --row-odd:   #f9fbf9;
+      --row-even:  #eef4ef;
+      --row-hover: #d4ead7;
+      --section-bg:#e8f2ea;
+      --total-bg:  #1a4d2e;
+      --total-text:#ffffff;
+      --note-bg:   #fffbe6;
+      --note-border:#f5a623;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .page-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    .header-card {
+      background: var(--primary);
+      color: var(--header-text);
+      border-radius: 12px 12px 0 0;
+      padding: 36px 40px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .logo-icon {
+      width: 52px; height: 52px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .logo-text strong { display: block; font-size: 11px; letter-spacing: 1.5px; opacity: .75; text-transform: uppercase; }
+    .logo-text span   { font-size: 15px; font-weight: 600; }
+    .header-title {
+      font-family: 'Merriweather', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .header-subtitle { font-size: 13px; opacity: .8; }
+    .header-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .meta-item {
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+    .meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .7; margin-bottom: 3px; }
+    .meta-item .value { font-size: 13px; font-weight: 600; }
+
+    .reg-banner {
+      background: var(--accent);
+      color: #2b1a00;
+      padding: 10px 40px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .reg-banner span { opacity: .7; font-weight: 400; }
+
+    .main-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 0 12px 12px;
+      overflow: hidden;
+    }
+
+    .section-title {
+      background: var(--section-bg);
+      border-top: 2px solid var(--primary-light);
+      padding: 14px 24px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-num {
+      background: var(--primary);
+      color: #fff;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+
+    .tbl-hsd thead tr { background: var(--primary); color: #fff; }
+    .tbl-hsd thead th { padding: 10px 12px; text-align: center; font-weight: 600; border: 1px solid rgba(255,255,255,.2); white-space: nowrap; }
+    .tbl-hsd tbody td { padding: 9px 12px; border: 1px solid var(--border); vertical-align: middle; }
+    .tbl-hsd tbody tr:nth-child(odd)  { background: var(--row-odd); }
+    .tbl-hsd tbody tr:nth-child(even) { background: var(--row-even); }
+    .tbl-hsd tbody tr:hover           { background: var(--row-hover); transition: background-color .15s ease-out; }
+
+    .tbl-ahsp thead tr.th-top { background: var(--primary); color: #fff; }
+    .tbl-ahsp thead tr.th-sub { background: #2d7a4f; color: #fff; }
+    .tbl-ahsp thead th { padding: 9px 10px; text-align: center; font-weight: 600; border: 1px solid rgba(255,255,255,.25); white-space: nowrap; font-size: 12px; }
+    .tbl-ahsp tbody td { padding: 8px 10px; border: 1px solid var(--border); vertical-align: middle; }
+    .tbl-ahsp tbody tr:nth-child(odd)  { background: var(--row-odd); }
+    .tbl-ahsp tbody tr:nth-child(even) { background: var(--row-even); }
+    .tbl-ahsp tbody tr:hover           { background: var(--row-hover); transition: background-color .15s ease-out; }
+
+    .comp-row td { background: #dceedd !important; font-weight: 700; color: var(--primary); font-size: 11.5px; letter-spacing: .4px; padding: 6px 10px !important; }
+    .subtotal-row td { background: #c5e0c8 !important; font-weight: 700; color: var(--primary); }
+    .gtotal-row td { background: var(--total-bg) !important; color: var(--total-text) !important; font-weight: 700; font-size: 13px; }
+
+    .tbl-rab thead tr { background: var(--primary); color: #fff; }
+    .tbl-rab thead th { padding: 10px 12px; text-align: center; font-weight: 600; border: 1px solid rgba(255,255,255,.2); font-size: 12.5px; }
+    .tbl-rab tbody td { padding: 9px 12px; border: 1px solid var(--border); vertical-align: middle; }
+    .tbl-rab tbody tr:nth-child(odd)  { background: var(--row-odd); }
+    .tbl-rab tbody tr:nth-child(even) { background: var(--row-even); }
+    .tbl-rab tbody tr:hover           { background: var(--row-hover); }
+    .tbl-rab .rab-total td { background: var(--total-bg) !important; color: #fff !important; font-weight: 700; font-size: 13px; }
+    .tbl-rab .rab-ppn   td { background: #2d7a4f !important; color: #fff !important; font-weight: 600; }
+    .tbl-rab .rab-final td { background: var(--accent) !important; color: #2b1a00 !important; font-weight: 700; font-size: 14px; }
+
+    .text-right  { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .notes { margin: 0; padding: 20px 24px; background: var(--note-bg); border-top: 3px solid var(--note-border); }
+    .notes h4 { color: var(--accent-dark); margin-bottom: 10px; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .notes ol  { padding-left: 20px; }
+    .notes li  { margin-bottom: 5px; color: var(--text-muted); font-size: 12px; }
+    .notes strong { color: var(--text); }
+
+    .footer { text-align: center; margin-top: 28px; color: var(--text-muted); font-size: 11px; line-height: 1.8; }
+
+    .signatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 28px 24px; border-top: 1px solid var(--border); }
+    .sig-box { text-align: center; border: 1px dashed var(--border); border-radius: 8px; padding: 14px; }
+    .sig-box .sig-title { font-weight: 700; font-size: 12px; margin-bottom: 60px; color: var(--primary); }
+    .sig-box .sig-line  { border-top: 1px solid #888; margin: 0 10px; }
+    .sig-box .sig-name  { font-size: 12px; font-weight: 600; margin-top: 6px; }
+    .sig-box .sig-nip   { font-size: 11px; color: var(--text-muted); }
+
+    @media print {
+      body { background: #fff; font-size: 11px; }
+      .page-wrapper { padding: 0; max-width: 100%; }
+      .header-card { border-radius: 0; }
+      .main-card   { border-radius: 0; border: none; }
+      .footer      { display: none; }
+    }
+    @media (max-width: 768px) {
+      .header-card { padding: 24px 20px 20px; }
+      .section-title { padding: 12px 16px; }
+      table { font-size: 11px; }
+      .signatures { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div class="header-logo">
+      <div class="logo-icon">&#127795;</div>
+      <div class="logo-text">
+        <strong>Kementerian Pekerjaan Umum &middot; AHSP 2026</strong>
+        <span>Rencana Anggaran Biaya (RAB)</span>
+      </div>
+    </div>
+    <div class="header-title">Pekerjaan Pemotongan / Perampingan Pohon</div>
+    <div class="header-subtitle">Berdasarkan SE Ditjen Bina Konstruksi No. 47/SE/Dk/2026 &ndash; Tata Cara Penyusunan Perkiraan Biaya Pekerjaan Konstruksi</div>
+    <div class="header-meta">
+      <div class="meta-item"><div class="label">Nama Proyek</div><div class="value">Pemeliharaan Pohon Jalan / RTH</div></div>
+      <div class="meta-item"><div class="label">Lokasi</div><div class="value">____________________</div></div>
+      <div class="meta-item"><div class="label">Tahun Anggaran</div><div class="value">2026</div></div>
+      <div class="meta-item"><div class="label">Tanggal RAB</div><div class="value">29 Juni 2026</div></div>
+      <div class="meta-item"><div class="label">Nomor Dokumen</div><div class="value">RAB-PPH-2026-001</div></div>
+      <div class="meta-item"><div class="label">Satuan Harga</div><div class="value">Rupiah (Rp)</div></div>
+    </div>
+  </div>
+
+  <!-- REGULATION BANNER -->
+  <div class="reg-banner">
+    &#128203; Acuan Regulasi: <span>SE Dirjen Bina Konstruksi No. 47/SE/Dk/2026 &nbsp;|&nbsp; Permen PUPR No. 8 Tahun 2023 &nbsp;|&nbsp; SNI Bidang Konstruksi &nbsp;|&nbsp; SMKK (K3 Konstruksi)</span>
+  </div>
+
+  <div class="main-card">
+
+    <!-- ====== BAGIAN I : HARGA SATUAN DASAR ====== -->
+    <div class="section-title">
+      <div class="section-num">I</div>
+      HARGA SATUAN DASAR (HSD) &ndash; KOMPONEN UPAH, ALAT &amp; BAHAN
+    </div>
+    <div style="overflow-x:auto;padding:0 0 4px">
+      <table class="tbl-hsd">
+        <thead>
+          <tr>
+            <th style="width:45px">No.</th>
+            <th style="text-align:left">Uraian Komponen</th>
+            <th>Kode</th>
+            <th>Satuan</th>
+            <th>Harga Satuan (Rp)</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="comp-row"><td colspan="6">A. TENAGA KERJA</td></tr>
+          <tr><td class="text-center">A.1</td><td>Pekerja Biasa</td><td class="text-center">L.01</td><td class="text-center">OH</td><td class="text-right num">120.000</td><td>Rata-rata nasional (sesuaikan HSD daerah)</td></tr>
+          <tr><td class="text-center">A.2</td><td>Tukang / Tenaga Terampil (Pemanjat / Operator Chainsaw)</td><td class="text-center">L.02</td><td class="text-center">OH</td><td class="text-right num">160.000</td><td>Tenaga khusus pemotongan pohon</td></tr>
+          <tr><td class="text-center">A.3</td><td>Mandor</td><td class="text-center">L.03</td><td class="text-center">OH</td><td class="text-right num">185.000</td><td>Pengawas lapangan</td></tr>
+          <tr class="comp-row"><td colspan="6">B. PERALATAN</td></tr>
+          <tr><td class="text-center">B.1</td><td>Chainsaw (Gergaji Mesin) &ndash; Kecil (diam. &le; 30 cm)</td><td class="text-center">E.01</td><td class="text-center">Jam</td><td class="text-right num">45.000</td><td>Sewa termasuk BBM &amp; operator</td></tr>
+          <tr><td class="text-center">B.2</td><td>Chainsaw (Gergaji Mesin) &ndash; Sedang (31&ndash;75 cm)</td><td class="text-center">E.02</td><td class="text-center">Jam</td><td class="text-right num">65.000</td><td>Sewa termasuk BBM &amp; operator</td></tr>
+          <tr><td class="text-center">B.3</td><td>Chainsaw (Gergaji Mesin) &ndash; Besar (&gt; 75 cm)</td><td class="text-center">E.03</td><td class="text-center">Jam</td><td class="text-right num">90.000</td><td>Chainsaw profesional / heavy duty</td></tr>
+          <tr><td class="text-center">B.4</td><td>Dump Truck (5&ndash;7 ton) &ndash; Pengangkutan Limbah Pohon</td><td class="text-center">E.04</td><td class="text-center">Jam</td><td class="text-right num">350.000</td><td>Termasuk sopir</td></tr>
+          <tr><td class="text-center">B.5</td><td>Alat Bantu (Tali, Puli, APD, Tangga) &ndash; Lump Sum per Hari</td><td class="text-center">E.05</td><td class="text-center">LS/Hari</td><td class="text-right num">75.000</td><td>APD wajib per SMKK</td></tr>
+          <tr class="comp-row"><td colspan="6">C. BAHAN / MATERIAL</td></tr>
+          <tr><td class="text-center">C.1</td><td>BBM (Solar/Bensin) untuk Chainsaw</td><td class="text-center">M.01</td><td class="text-center">Liter</td><td class="text-right num">13.500</td><td>Harga eceran tertinggi 2026</td></tr>
+          <tr><td class="text-center">C.2</td><td>Oli Rantai Chainsaw</td><td class="text-center">M.02</td><td class="text-center">Liter</td><td class="text-right num">35.000</td><td>&nbsp;</td></tr>
+          <tr><td class="text-center">C.3</td><td>Cat Luka Pohon (Tree Wound Sealer)</td><td class="text-center">M.03</td><td class="text-center">Kaleng</td><td class="text-right num">95.000</td><td>Untuk pekerjaan perampingan/pemangkasan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ====== BAGIAN II : AHSP ====== -->
+    <div class="section-title" style="margin-top:4px">
+      <div class="section-num">II</div>
+      ANALISIS HARGA SATUAN PEKERJAAN (AHSP) &ndash; PER JENIS &amp; DIAMETER POHON
+    </div>
+
+    <!-- KELOMPOK A: PERAMPINGAN -->
+    <div style="padding:12px 24px 6px;font-weight:700;color:var(--primary-light);font-size:13px;border-bottom:1px solid var(--border)">
+      &#9658; KELOMPOK A &ndash; PERAMPINGAN / PEMANGKASAN POHON (Pohon Tetap Berdiri / Hidup)
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl-ahsp">
+        <thead>
+          <tr class="th-top">
+            <th rowspan="2" style="width:42px">No.</th>
+            <th rowspan="2" style="text-align:left;min-width:200px">Uraian Pekerjaan / Komponen</th>
+            <th rowspan="2" style="width:52px">Sat.</th>
+            <th colspan="2">Tenaga Kerja</th>
+            <th colspan="2">Peralatan</th>
+            <th colspan="2">Bahan</th>
+            <th rowspan="2" style="width:115px">Harga Satuan (Rp)</th>
+          </tr>
+          <tr class="th-sub">
+            <th style="width:78px">Koef.</th><th style="width:90px">Biaya (Rp)</th>
+            <th style="width:78px">Koef.</th><th style="width:90px">Biaya (Rp)</th>
+            <th style="width:78px">Koef.</th><th style="width:90px">Biaya (Rp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- A.1 : 5-15 cm -->
+          <tr class="comp-row"><td colspan="10">A.1 &middot; Perampingan / Pemangkasan Pohon Diameter 5&ndash;15 cm (Pohon Kecil / Perdu) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,0500</td><td class="text-right num">6.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,0800</td><td class="text-right num">12.800</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0080</td><td class="text-right num">1.480</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Kecil (E.01)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,3000</td><td class="text-right num">13.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0100</td><td class="text-right num">750</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,0200</td><td class="text-right num">1.900</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">36.430</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">5.465</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.1 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>42.000</strong></td></tr>
+
+          <!-- A.2 : 15-30 cm -->
+          <tr class="comp-row"><td colspan="10">A.2 &middot; Perampingan / Pemangkasan Pohon Diameter 15&ndash;30 cm (Pohon Sedang Kecil) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,0800</td><td class="text-right num">9.600</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,1200</td><td class="text-right num">19.200</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0100</td><td class="text-right num">1.850</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Kecil (E.01)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,5000</td><td class="text-right num">22.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0150</td><td class="text-right num">1.125</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,0500</td><td class="text-right num">4.750</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">59.025</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">8.854</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.2 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>68.000</strong></td></tr>
+
+          <!-- A.3 : 30-50 cm -->
+          <tr class="comp-row"><td colspan="10">A.3 &middot; Perampingan / Pemangkasan Pohon Diameter 30&ndash;50 cm (Pohon Sedang) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,1500</td><td class="text-right num">18.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,2000</td><td class="text-right num">32.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0150</td><td class="text-right num">2.775</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Sedang (E.02)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,8000</td><td class="text-right num">52.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0200</td><td class="text-right num">1.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,1000</td><td class="text-right num">9.500</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">115.775</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">17.366</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.3 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>133.500</strong></td></tr>
+
+          <!-- A.4 : 50-75 cm -->
+          <tr class="comp-row"><td colspan="10">A.4 &middot; Perampingan / Pemangkasan Pohon Diameter 50&ndash;75 cm (Pohon Besar) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,2500</td><td class="text-right num">30.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,3500</td><td class="text-right num">56.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0200</td><td class="text-right num">3.700</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Sedang (E.02)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,2000</td><td class="text-right num">78.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04) &ndash; Angkut Ranting</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,5000</td><td class="text-right num">175.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0250</td><td class="text-right num">1.875</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,1500</td><td class="text-right num">14.250</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">358.825</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">53.824</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.4 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>413.000</strong></td></tr>
+
+          <!-- A.5 : > 75 cm -->
+          <tr class="comp-row"><td colspan="10">A.5 &middot; Perampingan / Pemangkasan Pohon Diameter &gt; 75 cm (Pohon Sangat Besar) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,3500</td><td class="text-right num">42.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,5000</td><td class="text-right num">80.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0300</td><td class="text-right num">5.550</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Besar (E.03)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,8000</td><td class="text-right num">162.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04) &ndash; Angkut Limbah</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,2000</td><td class="text-right num">420.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0350</td><td class="text-right num">2.625</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,2000</td><td class="text-right num">19.000</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">731.175</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">109.676</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.5 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>841.000</strong></td></tr>
+
+          <!-- A.6 : > 100 cm -->
+          <tr class="comp-row"><td colspan="10">A.6 &middot; Perampingan / Pemangkasan Pohon Diameter &gt; 100 cm (Pohon Raksasa) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,5000</td><td class="text-right num">60.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang / Operator Chainsaw (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,7000</td><td class="text-right num">112.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0400</td><td class="text-right num">7.400</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Besar (E.03)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">2,5000</td><td class="text-right num">225.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04) &ndash; Angkut Limbah</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,8000</td><td class="text-right num">630.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0467</td><td class="text-right num">3.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Cat Luka Pohon (M.03)</td><td class="text-center">Klg</td><td></td><td></td><td></td><td></td><td class="text-center num">0,2500</td><td class="text-right num">23.750</td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">1.061.650</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">159.248</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN A.6 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>1.221.000</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- KELOMPOK B: PEMOTONGAN -->
+    <div style="padding:12px 24px 6px;font-weight:700;color:var(--primary-light);font-size:13px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:4px">
+      &#9658; KELOMPOK B &ndash; PEMOTONGAN / PENEBANGAN POHON (Pohon Ditebang Habis, termasuk Pembuangan Tunggul)
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl-ahsp">
+        <thead>
+          <tr class="th-top">
+            <th rowspan="2" style="width:42px">No.</th>
+            <th rowspan="2" style="text-align:left;min-width:200px">Uraian Pekerjaan / Komponen</th>
+            <th rowspan="2" style="width:52px">Sat.</th>
+            <th colspan="2">Tenaga Kerja</th>
+            <th colspan="2">Peralatan</th>
+            <th colspan="2">Bahan</th>
+            <th rowspan="2" style="width:115px">Harga Satuan (Rp)</th>
+          </tr>
+          <tr class="th-sub">
+            <th>Koef.</th><th>Biaya (Rp)</th>
+            <th>Koef.</th><th>Biaya (Rp)</th>
+            <th>Koef.</th><th>Biaya (Rp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- B.1 : <15 cm -->
+          <tr class="comp-row"><td colspan="10">B.1 &middot; Pemotongan / Penebangan Pohon Diameter &lt; 15 cm &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,0600</td><td class="text-right num">7.200</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,0800</td><td class="text-right num">12.800</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0080</td><td class="text-right num">1.480</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Kecil (E.01)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,2000</td><td class="text-right num">9.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0100</td><td class="text-right num">750</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">31.230</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">4.685</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.1 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>36.000</strong></td></tr>
+
+          <!-- B.2 : 15-30 cm -->
+          <tr class="comp-row"><td colspan="10">B.2 &middot; Pemotongan / Penebangan Pohon Diameter 15&ndash;30 cm &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,0900</td><td class="text-right num">10.800</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,1200</td><td class="text-right num">19.200</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0100</td><td class="text-right num">1.850</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Kecil (E.01)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,5000</td><td class="text-right num">22.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0150</td><td class="text-right num">1.125</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">55.475</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">8.321</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.2 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>64.000</strong></td></tr>
+
+          <!-- B.3 : 30-50 cm -->
+          <tr class="comp-row"><td colspan="10">B.3 &middot; Pemotongan / Penebangan Pohon Diameter 30&ndash;50 cm &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,1500</td><td class="text-right num">18.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,2000</td><td class="text-right num">32.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0150</td><td class="text-right num">2.775</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Sedang (E.02)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,8000</td><td class="text-right num">52.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,3000</td><td class="text-right num">105.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0200</td><td class="text-right num">1.500</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">211.275</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">31.691</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.3 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>243.000</strong></td></tr>
+
+          <!-- B.4 : 50-75 cm -->
+          <tr class="comp-row"><td colspan="10">B.4 &middot; Pemotongan / Penebangan Pohon Diameter 50&ndash;75 cm &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,2500</td><td class="text-right num">30.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,3500</td><td class="text-right num">56.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0200</td><td class="text-right num">3.700</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Sedang (E.02)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,5000</td><td class="text-right num">97.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">0,7500</td><td class="text-right num">262.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0250</td><td class="text-right num">1.875</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">451.575</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">67.736</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.4 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>519.500</strong></td></tr>
+
+          <!-- B.5 : 75-100 cm -->
+          <tr class="comp-row"><td colspan="10">B.5 &middot; Pemotongan / Penebangan Pohon Diameter 75&ndash;100 cm &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,4000</td><td class="text-right num">48.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,5000</td><td class="text-right num">80.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0300</td><td class="text-right num">5.550</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Besar (E.03)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">2,0000</td><td class="text-right num">180.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04) &ndash; Angkut Limbah</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">1,4000</td><td class="text-right num">490.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0300</td><td class="text-right num">2.250</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">805.800</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">120.870</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.5 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>927.000</strong></td></tr>
+
+          <!-- B.6 : > 100 cm -->
+          <tr class="comp-row"><td colspan="10">B.6 &middot; Pemotongan / Penebangan Pohon Diameter &gt; 100 cm (Pohon Raksasa) &mdash; Satuan: Batang</td></tr>
+          <tr><td></td><td>Pekerja Biasa (L.01)</td><td class="text-center">OH</td><td class="text-center num">0,6000</td><td class="text-right num">72.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Tukang (L.02)</td><td class="text-center">OH</td><td class="text-center num">0,7500</td><td class="text-right num">120.000</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Mandor (L.03)</td><td class="text-center">OH</td><td class="text-center num">0,0500</td><td class="text-right num">9.250</td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Chainsaw Besar (E.03)</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">3,0000</td><td class="text-right num">270.000</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Dump Truck (E.04) &ndash; Angkut Limbah</td><td class="text-center">Jam</td><td></td><td></td><td class="text-center num">2,3500</td><td class="text-right num">822.500</td><td></td><td></td><td></td></tr>
+          <tr><td></td><td>Alat Bantu (E.05)</td><td class="text-center">LS</td><td></td><td></td><td class="text-center num">0,0500</td><td class="text-right num">3.750</td><td></td><td></td><td></td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Jumlah Biaya Langsung (D)</td><td class="text-right num">1.297.500</td></tr>
+          <tr class="subtotal-row"><td colspan="9" class="text-right">Overhead &amp; Profit 15% &times; D</td><td class="text-right num">194.625</td></tr>
+          <tr class="gtotal-row"><td colspan="9" class="text-right">HARGA SATUAN B.6 (per Batang) &mdash; DIBULATKAN</td><td class="text-right num"><strong>1.492.500</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ====== BAGIAN III : REKAPITULASI RAB ====== -->
+    <div class="section-title" style="margin-top:4px">
+      <div class="section-num">III</div>
+      REKAPITULASI RENCANA ANGGARAN BIAYA (RAB)
+    </div>
+    <div style="overflow-x:auto;padding:0 0 4px">
+      <table class="tbl-rab">
+        <thead>
+          <tr>
+            <th style="width:45px">No.</th>
+            <th style="text-align:left">Uraian Pekerjaan</th>
+            <th style="width:55px">Satuan</th>
+            <th style="width:100px">Diameter Pohon</th>
+            <th style="width:80px">Volume (Btg)</th>
+            <th style="width:130px">Harga Satuan (Rp)</th>
+            <th style="width:150px">Jumlah Harga (Rp)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#dceedd !important;font-weight:700;color:var(--primary)"><td colspan="7">A. PERAMPINGAN / PEMANGKASAN POHON</td></tr>
+          <tr><td class="text-center">A.1</td><td>Perampingan pohon diameter 5&ndash;15 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 5&ndash;15 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">42.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">A.2</td><td>Perampingan pohon diameter 15&ndash;30 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 15&ndash;30 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">68.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">A.3</td><td>Perampingan pohon diameter 30&ndash;50 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 30&ndash;50 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">133.500</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">A.4</td><td>Perampingan pohon diameter 50&ndash;75 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 50&ndash;75 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">413.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">A.5</td><td>Perampingan pohon diameter &gt; 75 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; &gt; 75 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">830.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">A.6</td><td>Perampingan pohon diameter &gt; 100 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; &gt; 100 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">1.221.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr style="background:#dceedd !important;font-weight:700;color:var(--primary)"><td colspan="7">B. PEMOTONGAN / PENEBANGAN POHON</td></tr>
+          <tr><td class="text-center">B.1</td><td>Pemotongan pohon diameter &lt; 15 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; &lt; 15 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">36.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">B.2</td><td>Pemotongan pohon diameter 15&ndash;30 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 15&ndash;30 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">64.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">B.3</td><td>Pemotongan pohon diameter 30&ndash;50 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 30&ndash;50 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">243.000</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">B.4</td><td>Pemotongan pohon diameter 50&ndash;75 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 50&ndash;75 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">519.500</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">B.5</td><td>Pemotongan pohon diameter 75&ndash;100 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; 75&ndash;100 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">915.500</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr><td class="text-center">B.6</td><td>Pemotongan pohon diameter &gt; 100 cm</td><td class="text-center">Batang</td><td class="text-center">&Oslash; &gt; 100 cm</td><td class="text-center">&#9135;&#9135;&#9135;&#9135;</td><td class="text-right num">1.489.500</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr style="background:#dceedd !important;font-weight:700;color:var(--primary)"><td colspan="7">C. BIAYA SMKK (K3 KONSTRUKSI) &mdash; Permen PUPR No. 10/2021</td></tr>
+          <tr><td class="text-center">C.1</td><td>Biaya Penerapan SMKK (2,5% dari total A+B)</td><td class="text-center">LS</td><td class="text-center">&ndash;</td><td class="text-center">1</td><td class="text-right">2,5% &times; (A+B)</td><td class="text-right">Rp &#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;&#9135;</td></tr>
+          <tr class="rab-total"><td colspan="6" class="text-right">JUMLAH TOTAL (A + B + C)</td><td class="text-right num">Rp _________________</td></tr>
+          <tr class="rab-ppn"><td colspan="6" class="text-right">PPN 11%</td><td class="text-right num">Rp _________________</td></tr>
+          <tr class="rab-final"><td colspan="6" class="text-right">&#127937; TOTAL BIAYA PEKERJAAN (termasuk PPN 11%)</td><td class="text-right num">Rp _________________</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ====== BAGIAN IV : RINGKASAN CEPAT ====== -->
+    <div class="section-title" style="margin-top:4px">
+      <div class="section-num">IV</div>
+      RINGKASAN HARGA SATUAN &ndash; REFERENSI CEPAT
+    </div>
+    <div style="overflow-x:auto;padding:0 0 4px">
+      <table class="tbl-hsd">
+        <thead>
+          <tr>
+            <th style="width:45px">No.</th>
+            <th style="text-align:left">Jenis Pekerjaan</th>
+            <th>Diameter Pohon</th>
+            <th>Satuan</th>
+            <th>Harga Satuan (Rp)</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="comp-row"><td colspan="6">PERAMPINGAN / PEMANGKASAN (Pohon Tetap Hidup)</td></tr>
+          <tr><td class="text-center">A.1</td><td>Perampingan Pohon</td><td class="text-center">&Oslash; 5&ndash;15 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>42.000</strong></td><td>Pohon kecil / perdu</td></tr>
+          <tr><td class="text-center">A.2</td><td>Perampingan Pohon</td><td class="text-center">&Oslash; 15&ndash;30 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>68.000</strong></td><td>Pohon sedang kecil</td></tr>
+          <tr><td class="text-center">A.3</td><td>Perampingan Pohon</td><td class="text-center">&Oslash; 30&ndash;50 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>133.500</strong></td><td>Pohon sedang</td></tr>
+          <tr><td class="text-center">A.4</td><td>Perampingan Pohon</td><td class="text-center">&Oslash; 50&ndash;75 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>413.000</strong></td><td>Pohon besar</td></tr>
+          <tr><td class="text-center">A.5</td><td>Perampingan Pohon</td><td class="text-center">&Oslash; &gt; 75 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>841.000</strong></td><td>Pohon sangat besar, Dump Truck Angkut Limbah</td></tr>
+          <tr class="comp-row"><td colspan="6">PEMOTONGAN / PENEBANGAN (Pohon Ditebang Habis + Buang Tunggul)</td></tr>
+          <tr><td class="text-center">B.1</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; &lt; 15 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>36.000</strong></td><td>Pohon kecil</td></tr>
+          <tr><td class="text-center">B.2</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; 15&ndash;30 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>64.000</strong></td><td>Termasuk pembuangan kayu</td></tr>
+          <tr><td class="text-center">B.3</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; 30&ndash;50 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>243.000</strong></td><td>Termasuk dump truck</td></tr>
+          <tr><td class="text-center">B.4</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; 50&ndash;75 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>519.500</strong></td><td>Pohon besar</td></tr>
+          <tr><td class="text-center">B.5</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; 75&ndash;100 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>927.000</strong></td><td>Pohon sangat besar, Dump Truck Angkut Limbah</td></tr>
+          <tr><td class="text-center">B.6</td><td>Pemotongan Pohon</td><td class="text-center">&Oslash; &gt; 100 cm</td><td class="text-center">Btg</td><td class="text-right num"><strong>1.492.500</strong></td><td>Pohon raksasa, Dump Truck Angkut Limbah</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CATATAN -->
+    <div class="notes">
+      <h4>&#128204; Catatan Penting &amp; Syarat-Syarat Teknis</h4>
+      <ol>
+        <li><strong>Dasar Hukum:</strong> RAB ini disusun berdasarkan <strong>SE Ditjen Bina Konstruksi No. 47/SE/Dk/2026</strong> tentang Tata Cara Penyusunan Perkiraan Biaya Pekerjaan Konstruksi Bidang Pekerjaan Umum, diterbitkan 13 Februari 2026.</li>
+        <li><strong>Harga Satuan Dasar (HSD):</strong> Upah tenaga kerja yang digunakan adalah <em>kisaran rata-rata nasional referensi</em>. Untuk keperluan tender resmi wajib disesuaikan dengan <strong>HSD Upah yang ditetapkan oleh Pemerintah Daerah setempat</strong>.</li>
+        <li><strong>Klasifikasi Diameter:</strong> Diameter pohon diukur pada ketinggian <strong>DBH = 1,30 m dari permukaan tanah</strong> sesuai standar kehutanan nasional.</li>
+        <li><strong>SMKK (K3):</strong> Biaya Penerapan SMKK sebesar <strong>2,5%</strong> dari total biaya fisik wajib dimasukkan sesuai Permen PUPR No. 10 Tahun 2021.</li>
+        <li><strong>PPN:</strong> PPN sebesar <strong>11%</strong> dihitung dari seluruh biaya (termasuk SMKK) sesuai UU HPP No. 7 Tahun 2021.</li>
+        <li><strong>Overhead &amp; Profit:</strong> Sebesar <strong>15%</strong> dari jumlah biaya langsung (tenaga + alat + bahan) sesuai standar AHSP PUPR.</li>
+        <li><strong>Pengangkutan Limbah:</strong> Dump truck diperhitungkan mulai Ø &ge; 30 cm. Pohon kecil pengangkutan manual sudah termasuk koefisien pekerja.</li>
+        <li><strong>Perizinan Penebangan:</strong> Pemotongan pohon di ruang publik/jalan nasional memerlukan <strong>izin dari Dinas Lingkungan Hidup / Dinas PU Binamarga</strong>. Biaya perizinan tidak termasuk dalam RAB ini.</li>
+        <li><strong>Inventarisasi Lapangan:</strong> Volume (jumlah batang per kelas diameter) wajib diverifikasi melalui survey inventarisasi pohon sebelum pelaksanaan kontrak.</li>
+        <li><strong>Armada Angkut Limbah:</strong> Pengangkutan limbah hasil perampingan dan penebangan pohon dilakukan secara penuh menggunakan armada Dump Truck (Angkut Limbah) untuk menjamin kebersihan area kerja.</li>
+      </ol>
+    </div>
+
+    <!-- TANDA TANGAN -->
+    <div class="signatures">
+      <div class="sig-box">
+        <div class="sig-title">Dibuat Oleh<br><small>Perencana / Konsultan Perencana</small></div>
+        <div class="sig-line"></div>
+        <div class="sig-name">( ___________________________ )</div>
+        <div class="sig-nip">NIP / No. Reg: _______________</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">Diperiksa Oleh<br><small>PPK / Kepala Bidang</small></div>
+        <div class="sig-line"></div>
+        <div class="sig-name">( ___________________________ )</div>
+        <div class="sig-nip">NIP: _______________</div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">Disetujui Oleh<br><small>Kepala Satuan Kerja / Kuasa PA</small></div>
+        <div class="sig-line"></div>
+        <div class="sig-name">( ___________________________ )</div>
+        <div class="sig-nip">NIP: _______________</div>
+      </div>
+    </div>
+
+  </div><!-- /main-card -->
+
+  <div class="footer">
+    <p>Dokumen RAB ini disusun mengacu pada <strong>SE Ditjen Bina Konstruksi No. 47/SE/Dk/2026</strong> &nbsp;|&nbsp; Kementerian Pekerjaan Umum Republik Indonesia</p>
+    <p>Harga satuan bersifat indikatif &mdash; wajib disesuaikan dengan Standar Harga Satuan Daerah setempat sebelum digunakan dalam dokumen tender resmi.</p>
+    <p style="margin-top:4px">&#128424; Cetak dokumen: <kbd>Ctrl+P</kbd> &nbsp;|&nbsp; Disusun: 29 Juni 2026</p>
+  </div>
+
+</div><!-- /page-wrapper -->
+</body>
+</html>

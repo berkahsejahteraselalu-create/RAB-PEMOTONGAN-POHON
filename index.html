@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arbor-AI | Orkestrasi Agen Pertamanan</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Interactive Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <a href="#" class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-tree"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>Arbor-AI</h1>
+                    <p>Orchestration Hub</p>
+                </div>
+            </a>
+
+            <nav class="nav-menu">
+                <div class="nav-item active" data-target="dashboard-view">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-target="surveyor-view">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>Surveyor Agent</span>
+                </div>
+                <div class="nav-item" data-target="arborist-view">
+                    <i class="fa-solid fa-leaf"></i>
+                    <span>Arborist Agent</span>
+                </div>
+                <div class="nav-item" data-target="estimator-view">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Estimator Agent</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- 1. DASHBOARD VIEW -->
+            <section id="dashboard-view" class="agent-view active">
+                <div class="header-area">
+                    <div class="page-title">
+                        <h2>Dashboard Analytics Proyek</h2>
+                        <p>Ringkasan Real-time Survei Pohon, Rekomendasi Arborist, & Estimasi RAB AHSP 2026</p>
+                    </div>
+                    <div class="dash-actions">
+                        <button id="btn-load-sample" class="action-btn">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Muat Sample Proyek Realistis
+                        </button>
+                        <button id="btn-reset-data" class="action-btn btn-danger-outline">
+                            <i class="fa-solid fa-trash-can"></i> Kosongkan Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI STATS CARDS -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-tree">
+                            <i class="fa-solid fa-tree"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Total Pohon Disurvei</span>
+                            <h3 class="kpi-value" id="dash-kpi-total">0 Batang</h3>
+                            <span class="kpi-subtext" id="dash-kpi-species-sub">0 jenis varietas</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-money">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Estimasi Total RAB</span>
+                            <h3 class="kpi-value" id="dash-kpi-rab">Rp 0</h3>
+                            <span class="kpi-subtext">AHSP 2026 + SMKK 2.5% + PPN 11%</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-actions">
+                            <i class="fa-solid fa-scissors"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Rasio Perampingan / Pemotongan</span>
+                            <h3 class="kpi-value" id="dash-kpi-tindakan">0 / 0</h3>
+                            <span class="kpi-subtext" id="dash-kpi-tindakan-sub">0% Perampingan · 0% Pemotongan</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-risk">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <span class="kpi-label">Pohon Risiko Tinggi</span>
+                            <h3 class="kpi-value" id="dash-kpi-risiko">0 Batang</h3>
+                            <span class="kpi-subtext">Dekat Kabel Listrik & Pohon Mati</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIAGRAMS GRID -->
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Proporsi Tindakan Penanganan Pohon</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-tindakan"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-chart-column"></i>
+                            <span>Sebaran Diameter Batang Pohon (cm)</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-diameter"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECONDARY ROW: KONDISI CHART & AHSP SUMMARY -->
+                <div class="charts-grid-secondary">
+                    <div class="card chart-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Profil Kondisi Lapangan & Aksesibilitas</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="chart-kondisi"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card summary-breakdown-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-coins"></i>
+                            <span>Alokasi Estimasi Biaya Pekerjaan</span>
+                        </div>
+                        <div class="dash-cost-breakdown">
+                            <div class="cost-item">
+                                <div class="cost-header">
+                                    <span>Biaya Langsung Pekerjaan (Kelompok A + B)</span>
+                                    <strong id="dash-cost-direct">Rp 0</strong>
+                                </div>
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" id="pbar-direct" style="width: 0%;"></div></div>
+                            </div>
+
+                            <div class="cost-item">
+                                <div class="cost-header">
+                                    <span>Biaya Penerapan SMKK / K3 (2.5%)</span>
+                                    <strong id="dash-cost-smkk">Rp 0</strong>
+                                </div>
+                                <div class="progress-bar-bg"><div class="progress-bar-fill bg-accent" id="pbar-smkk" style="width: 0%;"></div></div>
+                            </div>
+
+                            <div class="cost-item">
+                                <div class="cost-header">
+                                    <span>Pajak Pertambahan Nilai PPN (11%)</span>
+                                    <strong id="dash-cost-ppn">Rp 0</strong>
+                                </div>
+                                <div class="progress-bar-bg"><div class="progress-bar-fill bg-info" id="pbar-ppn" style="width: 0%;"></div></div>
+                            </div>
+
+                            <div class="dash-grand-total">
+                                <span>TOTAL ESTIMASI PROYEK</span>
+                                <h2 id="dash-cost-total">Rp 0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRIORITY / CRITICAL TREES TABLE -->
+                <div class="card">
+                    <div class="card-title" style="justify-content: space-between;">
+                        <div>
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Pohon Prioritas / Risiko Kritis (Perlu Penanganan Cepat)</span>
+                        </div>
+                        <span class="val-badge" id="badge-critical-count">0 Lokasi Kritis</span>
+                    </div>
+                    <table class="rab-table">
+                        <thead>
+                            <tr>
+                                <th>ID Pohon / Lokasi</th>
+                                <th>Diameter</th>
+                                <th>Kondisi Lapangan</th>
+                                <th>Rekomendasi Arborist</th>
+                                <th>Kategori AHSP</th>
+                                <th class="text-right">Estimasi Biaya Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dash-critical-table-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                    <div id="dash-critical-empty" class="empty-state">
+                        <i class="fa-solid fa-circle-check" style="color: var(--clr-success);"></i>
+                        <p>Tidak ada pohon dengan risiko tinggi atau data belum diinput. Klik <strong>"Muat Sample Proyek Realistis"</strong> untuk mengisi data pengujian.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. SURVEYOR AGENT VIEW -->
+            <section id="surveyor-view" class="agent-view">
+                <div class="header-area">
+                    <div class="page-title">
+                        <h2>Surveyor Agent</h2>
+                        <p>Input data lapangan dan inventarisasi pohon.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Tambah Data Pohon</span>
+                    </div>
+                    
+                    <form id="form-survey" class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Jenis Pohon / ID</label>
+                            <input type="text" id="pohon-id" class="form-control" placeholder="Contoh: Mahoni #01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Diameter Batang (cm)</label>
+                            <input type="number" id="pohon-diameter" class="form-control" placeholder="Masukkan angka (ex: 45)" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kondisi / Akses</label>
+                            <select id="pohon-kondisi" class="form-control">
+                                <option value="normal">Normal / Terbuka</option>
+                                <option value="sulit">Dekat Kabel Listrik / Sulit</option>
+                                <option value="mati">Mati / Kering</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tindakan Paksa (Opsional)</label>
+                            <select id="pohon-tindakan" class="form-control">
+                                <option value="auto">Otomatis (Arborist AI)</option>
+                                <option value="perampingan">Paksa Perampingan</option>
+                                <option value="pemotongan">Paksa Pemotongan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jumlah (Batang)</label>
+                            <input type="number" id="pohon-jumlah" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="form-group" style="justify-content: flex-end;">
+                            <button type="submit" class="btn-primary">
+                                <i class="fa-solid fa-satellite-dish"></i> Kirim ke Arborist
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Data Inventarisasi</span>
+                    </div>
+                    <table class="rab-table">
+                        <thead>
+                            <tr>
+                            <th>No. Pohon</th>
+                            <th>Diameter</th>
+                            <th>Kondisi</th>
+                            <th>Tindakan Manual</th>
+                            <th>Jumlah</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                        </thead>
+                        <tbody id="survey-table-body">
+                            <!-- Data akan masuk kesini -->
+                        </tbody>
+                    </table>
+                    <div id="survey-empty" class="empty-state">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>Belum ada data pohon yang disurvei.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. ARBORIST AGENT VIEW -->
+            <section id="arborist-view" class="agent-view">
+                <div class="header-area">
+                    <div class="page-title">
+                        <h2>Arborist Agent</h2>
+                        <p>Analisis cerdas dan rekomendasi tindakan (Perampingan vs Penebangan).</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-brain"></i>
+                        <span>Hasil Analisis Tindakan</span>
+                    </div>
+                    <p style="color: var(--clr-text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <i>Agen ini secara otomatis menganalisis data survei. Pohon mati atau diameter >100cm direkomendasikan untuk ditebang. Sisanya untuk dirampingkan. Anda dapat mengubah paksa jika perlu.</i>
+                    </p>
+                    <table class="rab-table">
+                        <thead>
+                            <tr>
+                                <th>ID Pohon</th>
+                                <th>Diameter</th>
+                                <th>Rekomendasi Tindakan</th>
+                                <th>Kategori AHSP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="arborist-table-body">
+                            <!-- Data akan masuk kesini -->
+                        </tbody>
+                    </table>
+                     <div id="arborist-empty" class="empty-state">
+                        <i class="fa-solid fa-leaf"></i>
+                        <p>Menunggu data dari Surveyor Agent.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. ESTIMATOR AGENT VIEW -->
+            <section id="estimator-view" class="agent-view">
+                <div class="header-area">
+                    <div class="page-title">
+                        <h2>Estimator Agent (RAB)</h2>
+                        <p>Kalkulasi biaya otomatis sesuai AHSP 2026 Cipta Karya.</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="action-btn" id="btn-edit-harga" style="background: var(--clr-secondary);"><i class="fa-solid fa-pen-to-square"></i> Edit Harga Dasar</button>
+                        <button class="action-btn" id="btn-export-excel" style="background: var(--clr-success); display: none;"><i class="fa-solid fa-file-excel"></i> Ekspor Excel</button>
+                        <button class="action-btn" id="btn-generate-rab"><i class="fa-solid fa-calculator"></i> Kalkulasi Ulang</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>Rincian Rencana Anggaran Biaya</span>
+                    </div>
+                    
+                    <table class="rab-table">
+                        <thead>
+                            <tr>
+                                <th>Uraian Pekerjaan</th>
+                                <th class="text-center">Vol</th>
+                                <th class="text-center">Sat</th>
+                                <th class="text-right">Harga Satuan (Rp)</th>
+                                <th class="text-right">Jumlah Harga (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rab-table-body">
+                            <!-- Data RAB masuk sini -->
+                        </tbody>
+                    </table>
+                    <div id="rab-empty" class="empty-state">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <p>Klik 'Kalkulasi Ulang' setelah ada data dari Arborist.</p>
+                    </div>
+
+                    <div class="rab-summary" style="display: none;" id="rab-summary-box">
+                        <div class="summary-item">
+                            <span class="label">Total Biaya Langsung (A+B)</span>
+                            <span class="val" id="sum-direct">Rp 0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Biaya SMKK / K3 (2.5%)</span>
+                            <span class="val" id="sum-smkk">Rp 0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">PPN (11%)</span>
+                            <span class="val" id="sum-ppn">Rp 0</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span class="label">TOTAL ESTIMASI BIAYA</span>
+                            <span class="val" id="sum-total">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Edit Harga Modal -->
+    <div id="modal-edit-harga" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+        <div class="card" style="width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; background: var(--clr-surface-solid); padding: 2rem; border-radius: var(--radius-lg);">
+            <div class="card-title">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Harga Dasar AHSP
+            </div>
+            <p style="color:var(--clr-text-muted); margin-bottom: 1rem;">Perubahan ini disimpan secara lokal di browser Anda.</p>
+            <div id="edit-harga-container"></div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button id="btn-close-modal" class="action-btn" style="background: var(--clr-text-muted);">Batal</button>
+                <button id="btn-save-harga" class="btn-primary" style="width: auto; margin-top: 0;">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="xlsx.bundle.js"></script>
+    <script src="data-ahsp.js"></script>
+    <script src="excel-export.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
