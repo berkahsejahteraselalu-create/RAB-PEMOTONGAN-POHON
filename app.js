@@ -10,8 +10,7 @@ function loadTenantData(tenantUsername) {
         if (raw) {
             surveyData = JSON.parse(raw);
         } else {
-            // Initial sample data for guest1, fresh empty space for guest2..guest4
-            if (tenantUsername === 'guest1') {
+            if (tenantUsername === 'guest1' || tenantUsername === 'admin') {
                 surveyData = JSON.parse(JSON.stringify(SAMPLE_SURVEY_DATA));
             } else {
                 surveyData = [];
@@ -27,7 +26,7 @@ function loadTenantData(tenantUsername) {
 function loadConsolidatedSuperadminData() {
     activeTenantKey = 'all';
     surveyData = [];
-    ['guest1', 'guest2', 'guest3', 'guest4'].forEach(g => {
+    ['admin', 'guest1', 'guest2', 'guest3', 'guest4'].forEach(g => {
         try {
             const raw = localStorage.getItem('arborSurveyData_' + g);
             if (raw) {
@@ -35,7 +34,16 @@ function loadConsolidatedSuperadminData() {
                 items.forEach(item => {
                     surveyData.push({
                         ...item,
-                        id: `[${g.toUpperCase()}] ${item.id}`
+                        id: item.id.startsWith('[') ? item.id : `[${g.toUpperCase()}] ${item.id}`
+                    });
+                });
+            } else if (g === 'guest1') {
+                const seeded = JSON.parse(JSON.stringify(SAMPLE_SURVEY_DATA));
+                localStorage.setItem('arborSurveyData_guest1', JSON.stringify(seeded));
+                seeded.forEach(item => {
+                    surveyData.push({
+                        ...item,
+                        id: `[GUEST1] ${item.id}`
                     });
                 });
             }
@@ -48,10 +56,47 @@ function loadConsolidatedSuperadminData() {
 function saveToLocal() {
     if (!currentUser) return;
     try {
-        if (currentUser.isSuperadmin && activeTenantKey !== 'all') {
-            localStorage.setItem('arborSurveyData_' + activeTenantKey, JSON.stringify(surveyData));
-        } else if (!currentUser.isSuperadmin) {
-            localStorage.setItem('arborSurveyData_' + currentUser.username, JSON.stringify(surveyData));
+        if (currentUser.isSuperadmin && activeTenantKey === 'all') {
+            const tenantMap = {
+                admin: [],
+                guest1: [],
+                guest2: [],
+                guest3: [],
+                guest4: []
+            };
+
+            surveyData.forEach(item => {
+                let tenant = currentUser.username || 'admin';
+                let cleanId = item.id;
+                
+                const match = item.id.match(/^\[([A-Z0-9]+)\]\s*(.*)$/);
+                if (match) {
+                    const tag = match[1].toLowerCase();
+                    if (tenantMap[tag] !== undefined) {
+                        tenant = tag;
+                    }
+                    cleanId = match[2];
+                }
+
+                tenantMap[tenant].push({
+                    ...item,
+                    id: cleanId
+                });
+            });
+
+            Object.keys(tenantMap).forEach(tKey => {
+                localStorage.setItem('arborSurveyData_' + tKey, JSON.stringify(tenantMap[tKey]));
+            });
+        } else {
+            const key = (activeTenantKey && activeTenantKey !== 'all') ? activeTenantKey : (currentUser.username || 'guest1');
+            const cleanData = surveyData.map(item => {
+                let cleanId = item.id;
+                if (cleanId.startsWith('[')) {
+                    cleanId = cleanId.replace(/^\[.*?\]\s*/, '');
+                }
+                return { ...item, id: cleanId };
+            });
+            localStorage.setItem('arborSurveyData_' + key, JSON.stringify(cleanData));
         }
     } catch(e) {
         console.warn("LocalStorage error:", e);
@@ -708,11 +753,7 @@ if (btnResetData) {
     });
 }
 
-// Auto load sample data on first run if surveyData is empty
-if (surveyData.length === 0) {
-    surveyData = JSON.parse(JSON.stringify(SAMPLE_SURVEY_DATA));
-    saveToLocal();
-}
+
 
 // --- Theme Management ---
 function initTheme() {
