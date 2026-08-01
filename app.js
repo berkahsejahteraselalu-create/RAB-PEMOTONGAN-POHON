@@ -141,7 +141,7 @@ function renderSurveyTable() {
             <td>${item.jumlah || 1}</td>
             <td class="text-center">
                 <div class="action-row" style="justify-content: center;">
-                    <button class="btn-icon delete" onclick="deleteSurvey(${index})"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-icon delete" onclick="deleteSurvey(${index})"><i class="ph-fill ph-trash"></i></button>
                 </div>
             </td>
         `;
@@ -283,7 +283,7 @@ function generateRAB() {
             <td class="text-right">
                 <div style="display:flex; justify-content:flex-end; align-items:center; gap:8px;">
                     ${formatRp(row.ahsp.price)}
-                    <button class="btn-icon info" onclick="toggleBreakdown('bd-${idx}')" title="Lihat rincian alat/bahan"><i class="fa-solid fa-circle-info"></i></button>
+                    <button class="btn-icon info" onclick="toggleBreakdown('bd-${idx}')" title="Lihat rincian alat/bahan"><i class="ph-fill ph-info"></i></button>
                 </div>
             </td>
             <td class="text-right"><strong>${formatRp(total)}</strong></td>
@@ -572,10 +572,10 @@ function renderTindakanChart(perampingan, pemotongan) {
             labels: ['Perampingan (Pangkas)', 'Pemotongan (Tebang)'],
             datasets: [{
                 data: [perampingan, pemotongan],
-                backgroundColor: ['#2d8a54', '#c94444'],
-                hoverBackgroundColor: ['#1e4d3a', '#a32a2a'],
-                borderWidth: 3,
-                borderColor: '#ffffff'
+                backgroundColor: ['#22C55E', '#EF4444'],
+                hoverBackgroundColor: ['#166534', '#DC2626'],
+                borderWidth: 2,
+                borderColor: window.chartBorderColor || '#0F172A'
             }]
         },
         options: {
@@ -614,9 +614,9 @@ function renderDiameterChart(bins) {
             datasets: [{
                 label: 'Jumlah Pohon (Batang)',
                 data: [bins["<15"], bins["15-30"], bins["30-50"], bins["50-75"], bins["75-100"], bins[">100"]],
-                backgroundColor: 'rgba(30, 77, 58, 0.85)',
-                hoverBackgroundColor: '#1e4d3a',
-                borderRadius: 8,
+                backgroundColor: 'rgba(14, 165, 233, 0.8)',
+                hoverBackgroundColor: '#0EA5E9',
+                borderRadius: 4,
                 borderSkipped: false
             }]
         },
@@ -637,7 +637,7 @@ function renderDiameterChart(bins) {
                 y: {
                     beginAtZero: true,
                     ticks: { stepSize: 1, font: { family: 'Plus Jakarta Sans' } },
-                    grid: { color: 'rgba(30,77,58,0.06)' }
+                    grid: { color: window.chartGridColor || 'rgba(30,77,58,0.06)' }
                 },
                 x: {
                     grid: { display: false },
@@ -662,9 +662,9 @@ function renderKondisiChart(counts) {
             labels: ['Normal / Terbuka', 'Dekat Kabel Listrik / Sulit', 'Mati / Kering'],
             datasets: [{
                 data: [counts.normal || 0, counts.sulit || 0, counts.mati || 0],
-                backgroundColor: ['#2d8a54', '#e59e2a', '#c94444'],
-                borderWidth: 3,
-                borderColor: '#ffffff'
+                backgroundColor: ['#22C55E', '#F59E0B', '#EF4444'],
+                borderWidth: 2,
+                borderColor: window.chartBorderColor || '#0F172A'
             }]
         },
         options: {
@@ -714,7 +714,42 @@ if (surveyData.length === 0) {
     saveToLocal();
 }
 
+// --- Theme Management ---
+function initTheme() {
+    const savedTheme = localStorage.getItem('arborTheme') || 'light';
+    setTheme(savedTheme, false);
+    
+    const btnThemeToggle = document.getElementById('btn-theme-toggle');
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme, true);
+        });
+    }
+}
+
+function setTheme(theme, reRender) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('arborTheme', theme);
+    
+    const btnThemeToggle = document.getElementById('btn-theme-toggle');
+    if (btnThemeToggle) {
+        btnThemeToggle.innerHTML = theme === 'dark' ? '<i class="ph-fill ph-sun"></i>' : '<i class="ph-fill ph-moon"></i>';
+    }
+    
+    if (typeof Chart !== 'undefined') {
+        Chart.defaults.color = theme === 'dark' ? '#F8FAFC' : '#0F172A';
+        window.chartGridColor = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.1)';
+        window.chartBorderColor = theme === 'dark' ? '#0F172A' : '#FFFFFF';
+        Chart.defaults.borderColor = window.chartGridColor;
+    }
+    
+    if (reRender && surveyData.length > 0) renderDashboard();
+}
+
 // --- Initialize On Load ---
+initTheme();
 renderSurveyTable();
 renderArboristTable();
 if (typeof generateRAB === 'function') generateRAB();
@@ -852,7 +887,7 @@ if (formLogin) {
         if (foundUser) {
             // Loading state feedback
             btnSubmit.disabled = true;
-            btnSubmit.innerHTML = `<span>Memverifikasi Akun...</span> <i class="fa-solid fa-spinner fa-spin"></i>`;
+            btnSubmit.innerHTML = `<span>Memverifikasi Akun...</span> <i class="ph-fill ph-circle-notch spin"></i>`;
             if (loginAlert) loginAlert.style.display = 'none';
 
             setTimeout(() => {
@@ -869,7 +904,7 @@ if (formLogin) {
 
                 activateUserSession(foundUser);
                 btnSubmit.disabled = false;
-                btnSubmit.innerHTML = `<span>Masuk ke Dashboard</span> <i class="fa-solid fa-right-to-bracket"></i>`;
+                btnSubmit.innerHTML = `<span>Masuk ke Dashboard</span> <i class="ph-fill ph-sign-in"></i>`;
             }, 350);
 
         } else {
@@ -888,12 +923,12 @@ if (btnTogglePwd && pwdInput && pwdIcon) {
     btnTogglePwd.addEventListener('click', function() {
         if (pwdInput.type === 'password') {
             pwdInput.type = 'text';
-            pwdIcon.classList.remove('fa-eye');
-            pwdIcon.classList.add('fa-eye-slash');
+            pwdIcon.classList.remove('ph-eye');
+            pwdIcon.classList.add('ph-eye-closed');
         } else {
             pwdInput.type = 'password';
-            pwdIcon.classList.remove('fa-eye-slash');
-            pwdIcon.classList.add('fa-eye');
+            pwdIcon.classList.remove('ph-eye-closed');
+            pwdIcon.classList.add('ph-eye');
         }
     });
 }
